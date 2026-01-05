@@ -3,58 +3,202 @@
 
 {% block header %}
 <div class="flex items-center">
-    <a href="{{ url_for('settings.index') }}" class="mr-4 text-gray-900">←</a>
-    <h1 class="text-2xl font-extrabold text-gray-900">Help & Support</h1>
+    <a href="{{ url_for('settings.index') }}" class="mr-3 text-ink/60 hover:text-ink">
+        <i data-lucide="arrow-left" class="w-6 h-6"></i>
+    </a>
+    <h1 class="text-xl font-bold text-ink">Help & Support</h1>
 </div>
 {% endblock %}
 
 {% block content %}
+<!-- Add to Home Screen -->
+<div id="install-card" class="card card-brand mb-4">
+    <div class="flex items-center mb-3">
+        <span class="text-3xl mr-4">📲</span>
+        <div>
+            <h3 class="font-semibold text-ink">Add to Home Screen</h3>
+            <p class="text-sm text-neutral-600">Use MiKlean like a real app</p>
+        </div>
+    </div>
+    <button id="install-btn" onclick="showInstallModal()" 
+        class="w-full bg-ink text-white font-semibold py-3 rounded-lg">
+        Add to Home Screen
+    </button>
+</div>
+
 <!-- Quick Start -->
-<a href="{{ url_for('help.getting_started') }}" class="card block mb-3">
+<a href="{{ url_for('help.getting_started') }}" class="card card-interactive block mb-3">
     <div class="flex items-center">
         <span class="text-3xl mr-4">🚀</span>
-        <div>
-            <h3 class="font-bold text-gray-900">Getting Started</h3>
-            <p class="text-sm text-gray-600">Learn the basics in 5 minutes</p>
+        <div class="flex-1">
+            <h3 class="font-semibold text-ink">Getting Started</h3>
+            <p class="text-sm text-neutral-500">Learn the basics in 5 minutes</p>
         </div>
-        <span class="ml-auto text-gray-400">→</span>
+        <i data-lucide="chevron-right" class="w-5 h-5 text-neutral-300"></i>
     </div>
 </a>
 
 <!-- FAQ -->
-<a href="{{ url_for('help.faq') }}" class="card block mb-3">
+<a href="{{ url_for('help.faq') }}" class="card card-interactive block mb-3">
     <div class="flex items-center">
         <span class="text-3xl mr-4">❓</span>
-        <div>
-            <h3 class="font-bold text-gray-900">FAQ</h3>
-            <p class="text-sm text-gray-600">Common questions answered</p>
+        <div class="flex-1">
+            <h3 class="font-semibold text-ink">FAQ</h3>
+            <p class="text-sm text-neutral-500">Common questions answered</p>
         </div>
-        <span class="ml-auto text-gray-400">→</span>
+        <i data-lucide="chevron-right" class="w-5 h-5 text-neutral-300"></i>
     </div>
 </a>
 
 <!-- Contact Support -->
-<div class="card mb-3">
-    <div class="flex items-center">
+<div class="card mb-4">
+    <div class="flex items-center mb-4">
         <span class="text-3xl mr-4">✉️</span>
         <div>
-            <h3 class="font-bold text-gray-900">Contact Support</h3>
-            <p class="text-sm text-gray-600">We're here to help</p>
+            <h3 class="font-semibold text-ink">Contact Support</h3>
+            <p class="text-sm text-neutral-500">We're here to help</p>
         </div>
     </div>
-    <div class="mt-4 pt-4 border-t border-gray-100">
-        <a href="mailto:info@untitledpublishers.com" 
-           class="block w-full text-center bg-yellow-primary text-gray-900 font-bold py-3 rounded-xl">
-            Email info@untitledpublishers.com
-        </a>
-        <p class="text-sm text-gray-500 text-center mt-2">We typically respond within 24 hours</p>
-    </div>
+    <a href="mailto:info@untitledpublishers.com" 
+       class="block w-full text-center btn-brand">
+        Email Us
+    </a>
+    <p class="text-sm text-neutral-400 text-center mt-2">We typically respond within 24 hours</p>
 </div>
 
 <!-- App Info -->
 <div class="card">
-    <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">APP INFO</p>
-    <p class="text-gray-700">MiKlean v1.0</p>
-    <p class="text-sm text-gray-500">Made by Untitled Publishers</p>
+    <p class="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">App Info</p>
+    <p class="text-ink font-medium">MiKlean v1.0</p>
+    <p class="text-sm text-neutral-500">Made by Untitled Publishers</p>
 </div>
+
+<!-- Install Instructions Modal -->
+<div id="install-modal" class="hidden fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50">
+    <div class="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-ink">Add to Home Screen</h3>
+            <button onclick="closeInstallModal()" class="text-neutral-400 hover:text-neutral-600 text-2xl">&times;</button>
+        </div>
+        
+        <!-- iOS Instructions -->
+        <div id="ios-instructions" class="hidden">
+            <p class="text-neutral-600 mb-4">To install MiKlean on your iPhone:</p>
+            <ol class="space-y-3 text-neutral-700">
+                <li class="flex items-start gap-3">
+                    <span class="bg-brand text-ink font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">1</span>
+                    <span>Tap the <strong>Share</strong> button <span class="inline-block bg-neutral-100 px-2 py-0.5 rounded text-sm">⬆️</span> at the bottom of Safari</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="bg-brand text-ink font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">2</span>
+                    <span>Scroll down and tap <strong>"Add to Home Screen"</strong></span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="bg-brand text-ink font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">3</span>
+                    <span>Tap <strong>"Add"</strong> in the top right</span>
+                </li>
+            </ol>
+            <p class="text-sm text-neutral-500 mt-4">MiKlean will appear on your home screen just like a regular app!</p>
+        </div>
+        
+        <!-- Android Instructions -->
+        <div id="android-instructions" class="hidden">
+            <p class="text-neutral-600 mb-4">To install MiKlean on your Android:</p>
+            <ol class="space-y-3 text-neutral-700">
+                <li class="flex items-start gap-3">
+                    <span class="bg-brand text-ink font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">1</span>
+                    <span>Tap the <strong>menu</strong> button <span class="inline-block bg-neutral-100 px-2 py-0.5 rounded text-sm">⋮</span> in Chrome</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="bg-brand text-ink font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">2</span>
+                    <span>Tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong></span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="bg-brand text-ink font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">3</span>
+                    <span>Tap <strong>"Add"</strong> to confirm</span>
+                </li>
+            </ol>
+            <p class="text-sm text-neutral-500 mt-4">MiKlean will appear on your home screen just like a regular app!</p>
+        </div>
+        
+        <!-- Desktop Instructions -->
+        <div id="desktop-instructions" class="hidden">
+            <p class="text-neutral-600 mb-4">To install MiKlean on your computer:</p>
+            <ol class="space-y-3 text-neutral-700">
+                <li class="flex items-start gap-3">
+                    <span class="bg-brand text-ink font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">1</span>
+                    <span>Look for the <strong>install icon</strong> in your browser's address bar</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="bg-brand text-ink font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">2</span>
+                    <span>Click <strong>"Install"</strong> when prompted</span>
+                </li>
+            </ol>
+            <p class="text-sm text-neutral-500 mt-4">Or just bookmark this page for easy access!</p>
+        </div>
+        
+        <button onclick="closeInstallModal()" class="w-full mt-6 btn-primary">
+            Got it!
+        </button>
+    </div>
+</div>
+
+<script>
+    let deferredPrompt;
+    const installBtn = document.getElementById('install-btn');
+    const installModal = document.getElementById('install-modal');
+    const installCard = document.getElementById('install-card');
+    
+    function getPlatform() {
+        const ua = navigator.userAgent;
+        if (/iPad|iPhone|iPod/.test(ua)) return 'ios';
+        if (/Android/.test(ua)) return 'android';
+        return 'desktop';
+    }
+    
+    function isStandalone() {
+        return window.matchMedia('(display-mode: standalone)').matches || 
+               window.navigator.standalone === true;
+    }
+    
+    // Hide if already installed
+    if (isStandalone()) {
+        installCard.classList.add('hidden');
+    }
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+    });
+    
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            if (outcome === 'accepted') {
+                installCard.classList.add('hidden');
+            }
+        } else {
+            showInstallModal();
+        }
+    });
+    
+    function showInstallModal() {
+        const platform = getPlatform();
+        document.getElementById('ios-instructions').classList.add('hidden');
+        document.getElementById('android-instructions').classList.add('hidden');
+        document.getElementById('desktop-instructions').classList.add('hidden');
+        document.getElementById(platform + '-instructions').classList.remove('hidden');
+        installModal.classList.remove('hidden');
+    }
+    
+    function closeInstallModal() {
+        installModal.classList.add('hidden');
+    }
+    
+    installModal.addEventListener('click', (e) => {
+        if (e.target === installModal) closeInstallModal();
+    });
+</script>
 {% endblock %}
