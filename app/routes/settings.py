@@ -84,63 +84,32 @@ def payment_instructions():
 @bp.route('/logo', methods=['GET', 'POST'])
 @login_required
 def upload_logo():
-    """Upload business logo."""
+    """Set business logo URL."""
     user_id = get_current_user_id()
     supabase = get_supabase()
     profile = get_user_profile()
     
     if request.method == 'POST':
-        if 'logo' not in request.files:
-            flash('No file selected.', 'error')
-            return redirect(url_for('settings.upload_logo'))
+        logo_url = request.form.get('logo_url', '').strip() or None
         
-        file = request.files['logo']
-        
-        if file.filename == '':
-            flash('No file selected.', 'error')
-            return redirect(url_for('settings.upload_logo'))
-        
-        # Check file type
-        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
-        file_ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
-        
-        if file_ext not in allowed_extensions:
-            flash('Please upload a PNG, JPG, or GIF image.', 'error')
-            return redirect(url_for('settings.upload_logo'))
+        # Basic URL validation
+        if logo_url and not logo_url.startswith(('http://', 'https://')):
+            flash('Please enter a valid URL starting with http:// or https://', 'error')
+            return render_template('settings/logo.html', profile=profile, logo_url=logo_url)
         
         try:
-            # Read file data
-            file_data = file.read()
-            
-            # Upload to Supabase Storage
-            path = f"logos/{user_id}/logo.{file_ext}"
-            
-            # Delete old logo if exists
-            try:
-                supabase.storage.from_('miklean-files').remove([path])
-            except:
-                pass
-            
-            # Upload new logo
-            supabase.storage.from_('miklean-files').upload(
-                path,
-                file_data,
-                {'content-type': f'image/{file_ext}'}
-            )
-            
-            # Get public URL
-            logo_url = supabase.storage.from_('miklean-files').get_public_url(path)
-            
-            # Update profile
             supabase.table('user_profiles').update({
                 'business_logo_url': logo_url
             }).eq('id', user_id).execute()
             
-            flash('Logo uploaded.', 'success')
+            if logo_url:
+                flash('Logo updated.', 'success')
+            else:
+                flash('Logo removed.', 'success')
             return redirect(url_for('settings.index'))
             
         except Exception as e:
-            flash('Failed to upload logo. Please try again.', 'error')
+            flash('Failed to update logo.', 'error')
     
     return render_template('settings/logo.html', profile=profile)
 
