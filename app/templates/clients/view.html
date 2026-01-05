@@ -114,7 +114,7 @@
        class="flex items-center justify-between py-3 {% if not loop.last %}border-b border-gray-100{% endif %}">
         <span class="text-gray-900">{{ visit.scheduled_date }}</span>
         {% if visit.scheduled_time %}
-        <span class="text-gray-600 text-sm">{{ visit.scheduled_time[:5] }}</span>
+        <span class="text-gray-600 text-sm">{{ visit.scheduled_time|time12 }}</span>
         {% endif %}
         <span class="badge badge-scheduled">Scheduled</span>
     </a>
