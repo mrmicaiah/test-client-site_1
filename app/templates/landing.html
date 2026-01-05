@@ -66,12 +66,87 @@
                 Run your entire cleaning business from your phone.<br>
                 <span class="text-gray-700">No spreadsheets. No paperwork. No headaches.</span>
             </p>
-            <a href="{{ url_for('auth.register') }}" class="inline-block bg-gray-900 text-white font-bold text-lg px-10 py-4 rounded-full hover:bg-gray-800 transition transform hover:scale-105">
-                Start Free Today →
-            </a>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="{{ url_for('auth.register') }}" class="inline-block bg-gray-900 text-white font-bold text-lg px-10 py-4 rounded-full hover:bg-gray-800 transition transform hover:scale-105">
+                    Start Free Today →
+                </a>
+                <button id="install-btn" class="hidden bg-white text-gray-900 font-bold text-lg px-10 py-4 rounded-full hover:bg-gray-100 transition transform hover:scale-105 border-2 border-gray-900">
+                    📲 Add to Home Screen
+                </button>
+            </div>
             <p class="text-sm text-gray-700 mt-4">Free forever. No credit card required.</p>
         </div>
     </section>
+    
+    <!-- Install Instructions Modal -->
+    <div id="install-modal" class="hidden fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50">
+        <div class="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-900">Add to Home Screen</h3>
+                <button onclick="closeInstallModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            
+            <!-- iOS Instructions -->
+            <div id="ios-instructions" class="hidden">
+                <p class="text-gray-600 mb-4">To install MiKlean on your iPhone:</p>
+                <ol class="space-y-3 text-gray-700">
+                    <li class="flex items-start gap-3">
+                        <span class="bg-yellow-primary text-gray-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">1</span>
+                        <span>Tap the <strong>Share</strong> button <span class="inline-block bg-gray-100 px-2 py-0.5 rounded text-sm">⬆️</span> at the bottom of Safari</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="bg-yellow-primary text-gray-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">2</span>
+                        <span>Scroll down and tap <strong>"Add to Home Screen"</strong></span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="bg-yellow-primary text-gray-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">3</span>
+                        <span>Tap <strong>"Add"</strong> in the top right</span>
+                    </li>
+                </ol>
+                <p class="text-sm text-gray-500 mt-4">MiKlean will appear on your home screen just like a regular app!</p>
+            </div>
+            
+            <!-- Android Instructions -->
+            <div id="android-instructions" class="hidden">
+                <p class="text-gray-600 mb-4">To install MiKlean on your Android:</p>
+                <ol class="space-y-3 text-gray-700">
+                    <li class="flex items-start gap-3">
+                        <span class="bg-yellow-primary text-gray-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">1</span>
+                        <span>Tap the <strong>menu</strong> button <span class="inline-block bg-gray-100 px-2 py-0.5 rounded text-sm">⋮</span> in Chrome</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="bg-yellow-primary text-gray-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">2</span>
+                        <span>Tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong></span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="bg-yellow-primary text-gray-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">3</span>
+                        <span>Tap <strong>"Add"</strong> to confirm</span>
+                    </li>
+                </ol>
+                <p class="text-sm text-gray-500 mt-4">MiKlean will appear on your home screen just like a regular app!</p>
+            </div>
+            
+            <!-- Desktop Instructions -->
+            <div id="desktop-instructions" class="hidden">
+                <p class="text-gray-600 mb-4">To install MiKlean on your computer:</p>
+                <ol class="space-y-3 text-gray-700">
+                    <li class="flex items-start gap-3">
+                        <span class="bg-yellow-primary text-gray-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">1</span>
+                        <span>Look for the <strong>install icon</strong> in your browser's address bar</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="bg-yellow-primary text-gray-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0">2</span>
+                        <span>Click <strong>"Install"</strong> when prompted</span>
+                    </li>
+                </ol>
+                <p class="text-sm text-gray-500 mt-4">Or just bookmark this page for easy access!</p>
+            </div>
+            
+            <button onclick="closeInstallModal()" class="w-full mt-6 bg-gray-900 text-white font-bold py-3 rounded-full">
+                Got it!
+            </button>
+        </div>
+    </div>
     
     <!-- Problem Section -->
     <section class="py-20 px-6 bg-gray-50">
@@ -236,5 +311,79 @@
             <a href="{{ url_for('auth.register') }}" class="text-gray-400 hover:text-white text-sm">Sign Up</a>
         </div>
     </footer>
+    
+    <script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-btn');
+        const installModal = document.getElementById('install-modal');
+        
+        // Detect platform
+        function getPlatform() {
+            const ua = navigator.userAgent;
+            if (/iPad|iPhone|iPod/.test(ua)) return 'ios';
+            if (/Android/.test(ua)) return 'android';
+            return 'desktop';
+        }
+        
+        // Show the install button on mobile
+        function showInstallButton() {
+            const platform = getPlatform();
+            if (platform === 'ios' || platform === 'android') {
+                installBtn.classList.remove('hidden');
+            }
+        }
+        
+        // Check if already installed as PWA
+        function isStandalone() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone === true;
+        }
+        
+        // Listen for the beforeinstallprompt event (Chrome/Android)
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.remove('hidden');
+        });
+        
+        // Handle install button click
+        installBtn.addEventListener('click', async () => {
+            // If we have the native prompt (Android Chrome), use it
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                if (outcome === 'accepted') {
+                    installBtn.classList.add('hidden');
+                }
+            } else {
+                // Show manual instructions modal
+                showInstallModal();
+            }
+        });
+        
+        function showInstallModal() {
+            const platform = getPlatform();
+            document.getElementById('ios-instructions').classList.add('hidden');
+            document.getElementById('android-instructions').classList.add('hidden');
+            document.getElementById('desktop-instructions').classList.add('hidden');
+            document.getElementById(platform + '-instructions').classList.remove('hidden');
+            installModal.classList.remove('hidden');
+        }
+        
+        function closeInstallModal() {
+            installModal.classList.add('hidden');
+        }
+        
+        // Close modal on backdrop click
+        installModal.addEventListener('click', (e) => {
+            if (e.target === installModal) closeInstallModal();
+        });
+        
+        // Show button on mobile even without beforeinstallprompt (for iOS)
+        if (!isStandalone()) {
+            showInstallButton();
+        }
+    </script>
 </body>
 </html>
