@@ -1,5 +1,5 @@
 """
-Main routes - today view, calendar, home.
+Main routes - today view, calendar, home, landing.
 """
 from flask import Blueprint, render_template, redirect, url_for, session
 from datetime import date, datetime, timedelta
@@ -15,6 +15,12 @@ def index():
     if 'access_token' in session:
         return redirect(url_for('main.today'))
     return redirect(url_for('auth.login'))
+
+
+@bp.route('/learn')
+def landing():
+    """Marketing landing page."""
+    return render_template('landing.html')
 
 
 @bp.route('/today')
