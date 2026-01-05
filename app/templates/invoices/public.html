@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice {{ invoice.invoice_number }} - {{ profile.business_name or 'Invoice' }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen py-8 px-4">
+    <div class="max-w-lg mx-auto">
+        <!-- Invoice Card -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <!-- Header -->
+            <div class="bg-[#FFC107] px-6 py-6">
+                <div class="flex justify-between items-start">
+                    <div>
+                        {% if profile.logo_url %}
+                        <img src="{{ profile.logo_url }}" alt="{{ profile.business_name }}" class="h-10 mb-2">
+                        {% endif %}
+                        <h1 class="text-xl font-bold text-gray-900">{{ profile.business_name or 'Invoice' }}</h1>
+                        {% if profile.phone %}
+                        <p class="text-sm text-gray-700">{{ profile.phone }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-bold text-gray-900">{{ invoice.invoice_number }}</p>
+                        <p class="text-sm text-gray-700">{{ invoice.created_at[:10] }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bill To -->
+            <div class="px-6 py-4 border-b border-gray-100">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Bill To</p>
+                <p class="font-semibold text-gray-900">{{ invoice.clients.name }}</p>
+                {% if invoice.clients.address %}
+                <p class="text-sm text-gray-600">{{ invoice.clients.address }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Line Items -->
+            <div class="px-6 py-4">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Services</p>
+                <div class="space-y-3">
+                    {% for visit in visits %}
+                    <div class="flex justify-between items-start py-2 border-b border-gray-50 last:border-0">
+                        <div>
+                            <p class="font-medium text-gray-900">Cleaning Service</p>
+                            <p class="text-sm text-gray-500">{{ visit.scheduled_date }}</p>
+                            {% if visit.completion_notes %}
+                            <p class="text-sm text-gray-500 mt-1">{{ visit.completion_notes }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="font-semibold text-gray-900">${{ "%.2f"|format(visit.price) }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Total -->
+            <div class="bg-gray-900 px-6 py-5">
+                <div class="flex justify-between items-center">
+                    <p class="text-gray-400 font-medium">Total Due</p>
+                    <p class="text-3xl font-bold text-[#FFC107]">${{ "%.2f"|format(invoice.total) }}</p>
+                </div>
+            </div>
+            
+            <!-- Payment Info -->
+            {% if profile.payment_instructions %}
+            <div class="px-6 py-4 bg-gray-50">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Payment Instructions</p>
+                <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ profile.payment_instructions }}</p>
+            </div>
+            {% endif %}
+            
+            <!-- Status -->
+            <div class="px-6 py-4 text-center">
+                {% if invoice.status == 'paid' %}
+                <span class="inline-block bg-green-100 text-green-700 font-semibold px-4 py-2 rounded-full text-sm">
+                    ✓ Paid
+                </span>
+                {% else %}
+                <span class="inline-block bg-yellow-100 text-yellow-700 font-semibold px-4 py-2 rounded-full text-sm">
+                    Payment Pending
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <p class="text-center text-gray-400 text-sm mt-6">
+            Thank you for your business!
+        </p>
+    </div>
+</body>
+</html>
