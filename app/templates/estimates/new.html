@@ -2,15 +2,13 @@
 {% block title %}Create Estimate - MiKlean{% endblock %}
 
 {% block header %}
-<div class="flex items-center justify-between">
-    <div class="flex items-center">
-        <a href="{{ url_for('clients.view_client', client_id=client.id) }}" class="mr-4 text-white/60 hover:text-white">
-            <i data-lucide="x" class="w-6 h-6"></i>
-        </a>
-        <div>
-            <h1 class="text-xl font-bold text-white">Create Estimate</h1>
-            <p class="text-sm text-white/60">for {{ client.name }}</p>
-        </div>
+<div class="flex items-center">
+    <a href="{{ url_for('clients.view_client', client_id=client.id) }}" class="mr-3 text-ink/60 hover:text-ink">
+        <i data-lucide="x" class="w-6 h-6"></i>
+    </a>
+    <div>
+        <h1 class="text-xl font-bold text-ink">Create Estimate</h1>
+        <p class="text-sm text-ink/60">for {{ client.name }}</p>
     </div>
 </div>
 {% endblock %}
@@ -20,44 +18,41 @@
 {% block content %}
 <form method="POST" class="space-y-4">
     <div class="card">
-        <label for="description" class="block text-sm font-semibold text-white/60 mb-2">Service Description *</label>
-        <textarea id="description" name="description" rows="4" required
-            class="input input-dark"
+        <label for="description" class="block text-sm font-medium text-neutral-600 mb-1.5">Service Description *</label>
+        <textarea id="description" name="description" rows="4" required class="input"
             placeholder="Describe what you'll do...">{{ description or '' }}</textarea>
     </div>
     
     <div class="card">
-        <label for="price_per_visit" class="block text-sm font-semibold text-white/60 mb-2">Price Per Visit *</label>
-        <input type="text" id="price_per_visit" name="price_per_visit" required
-            value="{{ price_per_visit or '' }}"
-            class="input input-dark text-2xl font-bold"
-            placeholder="$150.00">
+        <label for="price_per_visit" class="block text-sm font-medium text-neutral-600 mb-1.5">Price Per Visit *</label>
+        <input type="text" id="price_per_visit" name="price_per_visit" required value="{{ price_per_visit or '' }}"
+            class="input text-2xl font-bold" placeholder="$150.00">
     </div>
     
     <div class="card">
-        <label class="block text-sm font-semibold text-white/60 mb-3">Frequency *</label>
+        <label class="block text-sm font-medium text-neutral-600 mb-3">Frequency *</label>
         <div class="grid grid-cols-4 gap-2">
             <label class="relative">
                 <input type="radio" name="frequency" value="weekly" class="peer sr-only" {% if frequency == 'weekly' %}checked{% endif %}>
-                <div class="px-2 py-3 text-center rounded-xl cursor-pointer bg-ink-light text-white/60 peer-checked:bg-brand peer-checked:text-ink font-semibold text-sm">
+                <div class="px-2 py-3 text-center rounded-xl cursor-pointer border-2 border-neutral-200 text-neutral-600 peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-ink font-semibold text-sm transition-all">
                     Weekly
                 </div>
             </label>
             <label class="relative">
                 <input type="radio" name="frequency" value="biweekly" class="peer sr-only" {% if frequency == 'biweekly' %}checked{% endif %}>
-                <div class="px-2 py-3 text-center rounded-xl cursor-pointer bg-ink-light text-white/60 peer-checked:bg-brand peer-checked:text-ink font-semibold text-sm">
+                <div class="px-2 py-3 text-center rounded-xl cursor-pointer border-2 border-neutral-200 text-neutral-600 peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-ink font-semibold text-sm transition-all">
                     Bi-Wk
                 </div>
             </label>
             <label class="relative">
                 <input type="radio" name="frequency" value="monthly" class="peer sr-only" {% if frequency == 'monthly' %}checked{% endif %}>
-                <div class="px-2 py-3 text-center rounded-xl cursor-pointer bg-ink-light text-white/60 peer-checked:bg-brand peer-checked:text-ink font-semibold text-sm">
+                <div class="px-2 py-3 text-center rounded-xl cursor-pointer border-2 border-neutral-200 text-neutral-600 peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-ink font-semibold text-sm transition-all">
                     Monthly
                 </div>
             </label>
             <label class="relative">
                 <input type="radio" name="frequency" value="one_time" class="peer sr-only" {% if frequency == 'one_time' %}checked{% endif %}>
-                <div class="px-2 py-3 text-center rounded-xl cursor-pointer bg-ink-light text-white/60 peer-checked:bg-brand peer-checked:text-ink font-semibold text-sm">
+                <div class="px-2 py-3 text-center rounded-xl cursor-pointer border-2 border-neutral-200 text-neutral-600 peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-ink font-semibold text-sm transition-all">
                     Once
                 </div>
             </label>
@@ -65,11 +60,11 @@
     </div>
     
     <div class="card">
-        <p class="text-sm font-semibold text-white/60 mb-3">Schedule Preference</p>
+        <p class="text-sm font-medium text-neutral-600 mb-3">Schedule Preference</p>
         <div class="grid grid-cols-2 gap-3">
             <div>
-                <label for="preferred_day" class="block text-xs text-white/40 mb-1">Day</label>
-                <select id="preferred_day" name="preferred_day" class="input input-dark">
+                <label for="preferred_day" class="block text-xs text-neutral-400 mb-1">Day</label>
+                <select id="preferred_day" name="preferred_day" class="input">
                     <option value="">No preference</option>
                     <option value="monday" {% if preferred_day == 'monday' %}selected{% endif %}>Monday</option>
                     <option value="tuesday" {% if preferred_day == 'tuesday' %}selected{% endif %}>Tuesday</option>
@@ -81,8 +76,8 @@
                 </select>
             </div>
             <div>
-                <label for="preferred_time" class="block text-xs text-white/40 mb-1">Time</label>
-                <select id="preferred_time" name="preferred_time" class="input input-dark">
+                <label for="preferred_time" class="block text-xs text-neutral-400 mb-1">Time</label>
+                <select id="preferred_time" name="preferred_time" class="input">
                     <option value="">No preference</option>
                     <option value="Morning" {% if preferred_time == 'Morning' %}selected{% endif %}>Morning</option>
                     <option value="Afternoon" {% if preferred_time == 'Afternoon' %}selected{% endif %}>Afternoon</option>
@@ -91,21 +86,17 @@
             </div>
         </div>
         
-        <div id="monthly-rate-option" class="flex items-center mt-4 pt-4 border-t border-white/10">
+        <div id="monthly-rate-option" class="flex items-center mt-4 pt-4 border-t border-neutral-100">
             <input type="checkbox" id="show_monthly_rate" name="show_monthly_rate" 
                 {% if show_monthly_rate is not defined or show_monthly_rate %}checked{% endif %}
-                class="w-5 h-5 rounded bg-ink-light border-white/20 text-brand focus:ring-brand">
-            <label for="show_monthly_rate" class="ml-3 text-white/70 text-sm">Show monthly rate on estimate</label>
+                class="w-5 h-5 rounded border-neutral-300 text-brand focus:ring-brand">
+            <label for="show_monthly_rate" class="ml-3 text-neutral-600 text-sm">Show monthly rate on estimate</label>
         </div>
     </div>
     
     <div class="space-y-3 pt-2">
-        <button type="submit" class="btn-white w-full">
-            Save Estimate
-        </button>
-        <a href="{{ url_for('clients.view_client', client_id=client.id) }}" class="btn-outline w-full">
-            Cancel
-        </a>
+        <button type="submit" class="btn-primary w-full">Save Estimate</button>
+        <a href="{{ url_for('clients.view_client', client_id=client.id) }}" class="btn-secondary w-full">Cancel</a>
     </div>
 </form>
 
