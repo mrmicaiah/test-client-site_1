@@ -3,6 +3,7 @@ Invoice routes - create, view, send, mark paid, PDF download.
 """
 from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file
 from datetime import date, datetime
+import secrets
 from ..auth import login_required, get_current_user_id, get_user_profile
 from ..supabase_client import get_supabase
 
@@ -20,12 +21,20 @@ def get_visit_price(visit):
     return 0
 
 
+def generate_public_token():
+    """Generate a unique token for public invoice access."""
+    return secrets.token_urlsafe(16)
+
+
 @bp.route('/clients/<client_id>/invoice', methods=['GET', 'POST'])
 @login_required
 def create_invoice(client_id):
     """Create an invoice for a client's completed visits."""
     user_id = get_current_user_id()
     supabase = get_supabase()
+    
+    # Check if coming from a specific visit
+    from_visit_id = request.args.get('from_visit')
     
     # Get client
     client_response = supabase.table('clients')\
@@ -64,7 +73,8 @@ def create_invoice(client_id):
             flash('Please select at least one visit to invoice.', 'error')
             return render_template('invoices/create.html', 
                                    client=client, 
-                                   visits=available_visits)
+                                   visits=available_visits,
+                                   from_visit_id=from_visit_id)
         
         # Filter to selected visits
         selected_visits = [v for v in available_visits if v['id'] in selected_visit_ids]
@@ -73,14 +83,16 @@ def create_invoice(client_id):
             flash('No valid visits selected.', 'error')
             return render_template('invoices/create.html', 
                                    client=client, 
-                                   visits=available_visits)
+                                   visits=available_visits,
+                                   from_visit_id=from_visit_id)
         
         # Calculate total
         subtotal = sum(v['price'] for v in selected_visits)
         total = subtotal  # No tax for now
         
-        # Generate invoice number
+        # Generate invoice number and public token
         invoice_number = generate_invoice_number(supabase, user_id)
+        public_token = generate_public_token()
         
         try:
             # Create invoice
@@ -90,14 +102,16 @@ def create_invoice(client_id):
                 'invoice_number': invoice_number,
                 'subtotal': subtotal,
                 'total': total,
-                'status': 'draft'
+                'status': 'draft',
+                'public_token': public_token
             }).execute()
             
             if not invoice_response.data:
                 flash('Failed to create invoice.', 'error')
                 return render_template('invoices/create.html', 
                                        client=client, 
-                                       visits=available_visits)
+                                       visits=available_visits,
+                                       from_visit_id=from_visit_id)
             
             invoice_id = invoice_response.data[0]['id']
             
@@ -112,7 +126,10 @@ def create_invoice(client_id):
         except Exception as e:
             flash('Failed to create invoice.', 'error')
     
-    return render_template('invoices/create.html', client=client, visits=available_visits)
+    return render_template('invoices/create.html', 
+                           client=client, 
+                           visits=available_visits,
+                           from_visit_id=from_visit_id)
 
 
 @bp.route('/invoices/<invoice_id>')
@@ -124,7 +141,7 @@ def view_invoice(invoice_id):
     
     # Get invoice with client info
     response = supabase.table('invoices')\
-        .select('*, clients(name, address, email)')\
+        .select('*, clients(name, address, email, phone)')\
         .eq('id', invoice_id)\
         .eq('user_id', user_id)\
         .single()\
@@ -149,7 +166,56 @@ def view_invoice(invoice_id):
     for visit in visits:
         visit['price'] = get_visit_price(visit)
     
-    return render_template('invoices/view.html', invoice=invoice, visits=visits)
+    # Generate public URL
+    public_url = None
+    if invoice.get('public_token'):
+        public_url = url_for('invoices.public_invoice', token=invoice['public_token'], _external=True)
+    
+    return render_template('invoices/view.html', invoice=invoice, visits=visits, public_url=public_url)
+
+
+@bp.route('/invoice/view/<token>')
+def public_invoice(token):
+    """Public view of invoice - no login required."""
+    supabase = get_supabase()
+    
+    # Get invoice by token
+    response = supabase.table('invoices')\
+        .select('*, clients(name, address, email)')\
+        .eq('public_token', token)\
+        .single()\
+        .execute()
+    
+    if not response.data:
+        return render_template('invoices/not_found.html'), 404
+    
+    invoice = response.data
+    
+    # Get user profile for business info
+    profile_response = supabase.table('profiles')\
+        .select('*')\
+        .eq('id', invoice['user_id'])\
+        .single()\
+        .execute()
+    
+    profile = profile_response.data if profile_response.data else {}
+    
+    # Get visits on this invoice
+    visits_response = supabase.table('visits')\
+        .select('*, estimates(price_per_visit, description)')\
+        .eq('invoice_id', invoice['id'])\
+        .order('scheduled_date')\
+        .execute()
+    
+    visits = visits_response.data if visits_response.data else []
+    
+    for visit in visits:
+        visit['price'] = get_visit_price(visit)
+    
+    return render_template('invoices/public.html', 
+                           invoice=invoice, 
+                           visits=visits,
+                           profile=profile)
 
 
 @bp.route('/invoices/<invoice_id>/preview')
@@ -270,6 +336,17 @@ def send_invoice(invoice_id):
     invoice = response.data
     client = invoice['clients']
     
+    # Ensure invoice has a public token
+    if not invoice.get('public_token'):
+        public_token = generate_public_token()
+        supabase.table('invoices').update({
+            'public_token': public_token
+        }).eq('id', invoice_id).execute()
+        invoice['public_token'] = public_token
+    
+    # Generate public URL
+    public_url = url_for('invoices.public_invoice', token=invoice['public_token'], _external=True)
+    
     if request.method == 'POST':
         send_method = request.form.get('method')
         
@@ -278,7 +355,7 @@ def send_invoice(invoice_id):
                 flash('Client has no email address. Please add one first.', 'error')
                 return redirect(url_for('clients.edit_client', client_id=invoice['client_id']))
             
-            # TODO: Send email via SendGrid with PDF attachment
+            # TODO: Send email via SendGrid with link
             # For now, mark as sent
             supabase.table('invoices').update({
                 'status': 'sent',
@@ -289,14 +366,11 @@ def send_invoice(invoice_id):
             return redirect(url_for('invoices.view_invoice', invoice_id=invoice_id))
             
         elif send_method == 'text':
-            # Generate SMS message
+            # Generate SMS message with link
             profile = get_user_profile()
             business_name = profile.get('business_name') or 'Your cleaner'
-            payment_info = profile.get('payment_instructions') or ''
             
-            message = f"Hi {client['name']}! Invoice {invoice['invoice_number']} for ${invoice['total']:.2f} from {business_name}."
-            if payment_info:
-                message += f" Payment: {payment_info[:100]}"
+            message = f"Hi {client['name']}! Here's your invoice for ${invoice['total']:.2f} from {business_name}: {public_url}"
             
             # Update status
             supabase.table('invoices').update({
@@ -305,10 +379,12 @@ def send_invoice(invoice_id):
             }).eq('id', invoice_id).execute()
             
             # Redirect to SMS app
-            sms_url = f"sms:{client['phone']}?body={message}"
+            import urllib.parse
+            encoded_message = urllib.parse.quote(message)
+            sms_url = f"sms:{client['phone']}?body={encoded_message}"
             return redirect(sms_url)
     
-    return render_template('invoices/send.html', invoice=invoice, client=client)
+    return render_template('invoices/send.html', invoice=invoice, client=client, public_url=public_url)
 
 
 @bp.route('/invoices/<invoice_id>/paid', methods=['POST'])
