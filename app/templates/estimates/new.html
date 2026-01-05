@@ -23,7 +23,7 @@
             placeholder="Describe what you'll do...">{{ description or '' }}</textarea>
     </div>
     
-    <div class="card">
+    <div class="card card-brand">
         <label for="price_per_visit" class="block text-sm font-medium text-neutral-600 mb-1.5">Price Per Visit *</label>
         <input type="text" id="price_per_visit" name="price_per_visit" required value="{{ price_per_visit or '' }}"
             class="input text-2xl font-bold" placeholder="$150.00">
@@ -34,25 +34,25 @@
         <div class="grid grid-cols-4 gap-2">
             <label class="relative">
                 <input type="radio" name="frequency" value="weekly" class="peer sr-only" {% if frequency == 'weekly' %}checked{% endif %}>
-                <div class="px-2 py-3 text-center rounded-xl cursor-pointer border-2 border-neutral-200 text-neutral-600 peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-ink font-semibold text-sm transition-all">
+                <div class="px-2 py-3 text-center rounded-lg cursor-pointer border-b-3 border-neutral-200 bg-neutral-50 text-neutral-600 peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-ink font-semibold text-sm transition-all">
                     Weekly
                 </div>
             </label>
             <label class="relative">
                 <input type="radio" name="frequency" value="biweekly" class="peer sr-only" {% if frequency == 'biweekly' %}checked{% endif %}>
-                <div class="px-2 py-3 text-center rounded-xl cursor-pointer border-2 border-neutral-200 text-neutral-600 peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-ink font-semibold text-sm transition-all">
+                <div class="px-2 py-3 text-center rounded-lg cursor-pointer border-b-3 border-neutral-200 bg-neutral-50 text-neutral-600 peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-ink font-semibold text-sm transition-all">
                     Bi-Wk
                 </div>
             </label>
             <label class="relative">
                 <input type="radio" name="frequency" value="monthly" class="peer sr-only" {% if frequency == 'monthly' %}checked{% endif %}>
-                <div class="px-2 py-3 text-center rounded-xl cursor-pointer border-2 border-neutral-200 text-neutral-600 peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-ink font-semibold text-sm transition-all">
+                <div class="px-2 py-3 text-center rounded-lg cursor-pointer border-b-3 border-neutral-200 bg-neutral-50 text-neutral-600 peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-ink font-semibold text-sm transition-all">
                     Monthly
                 </div>
             </label>
             <label class="relative">
                 <input type="radio" name="frequency" value="one_time" class="peer sr-only" {% if frequency == 'one_time' %}checked{% endif %}>
-                <div class="px-2 py-3 text-center rounded-xl cursor-pointer border-2 border-neutral-200 text-neutral-600 peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-ink font-semibold text-sm transition-all">
+                <div class="px-2 py-3 text-center rounded-lg cursor-pointer border-b-3 border-neutral-200 bg-neutral-50 text-neutral-600 peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-ink font-semibold text-sm transition-all">
                     Once
                 </div>
             </label>
