@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Schedule Visit - MiKlean{% endblock %}
+
+{% block header %}
+<div class="flex items-center">
+    <a href="{{ url_for('main.calendar') }}" class="mr-3 text-ink/60 hover:text-ink">
+        <i data-lucide="x" class="w-6 h-6"></i>
+    </a>
+    <div>
+        <h1 class="text-xl font-bold text-ink">Schedule Visit</h1>
+        <p class="text-sm text-ink/60">Select a client</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block bottom_nav %}{% endblock %}
+
+{% block content %}
+<!-- Search -->
+<form method="GET" class="mb-4">
+    <input type="text" name="search" value="{{ search or '' }}"
+        placeholder="🔍 Search clients..."
+        class="input">
+</form>
+
+{% if clients %}
+<p class="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">
+    {{ clients|length }} client{{ 's' if clients|length != 1 else '' }}
+</p>
+
+<div class="space-y-3">
+    {% for client in clients %}
+    <a href="{{ url_for('visits.schedule_visits', client_id=client.id) }}" class="card card-interactive block">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="font-semibold text-ink">{{ client.name }}</h3>
+                <p class="text-sm text-neutral-500">{{ client.address|truncate(35) if client.address else client.phone }}</p>
+            </div>
+            <i data-lucide="chevron-right" class="w-5 h-5 text-neutral-400"></i>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card text-center py-10">
+    <div class="w-14 h-14 bg-brand/20 rounded-full flex items-center justify-center mx-auto mb-3">
+        <i data-lucide="users" class="w-7 h-7 text-brand"></i>
+    </div>
+    <h3 class="text-lg font-semibold text-ink mb-1">No clients yet</h3>
+    <p class="text-neutral-500 text-sm mb-4">Add a client first, then schedule visits</p>
+    <a href="{{ url_for('clients.new_client') }}" class="btn-brand inline-block px-6">
+        + Add Client
+    </a>
+</div>
+{% endif %}
+{% endblock %}
