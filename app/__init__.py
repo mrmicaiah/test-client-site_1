@@ -5,10 +5,31 @@ from flask import Flask
 from .config import Config
 
 
+def format_time_12hr(time_str):
+    """Convert 24-hour time string to 12-hour format."""
+    if not time_str:
+        return ''
+    try:
+        # Handle both "HH:MM:SS" and "HH:MM" formats
+        time_part = time_str[:5]  # Get "HH:MM"
+        hour, minute = map(int, time_part.split(':'))
+        period = 'AM' if hour < 12 else 'PM'
+        if hour == 0:
+            hour = 12
+        elif hour > 12:
+            hour -= 12
+        return f"{hour}:{minute:02d} {period}"
+    except:
+        return time_str
+
+
 def create_app(config_class=Config):
     """Application factory."""
     app = Flask(__name__)
     app.config.from_object(config_class)
+    
+    # Register custom Jinja filters
+    app.jinja_env.filters['time12'] = format_time_12hr
     
     # Register blueprints
     from .routes import auth, main, clients, estimates, visits, invoices, settings, api, onboarding, help
