@@ -4,7 +4,7 @@
 {% block header %}
 <div class="flex items-center justify-between">
     <div class="flex items-center">
-        <a href="{{ url_for('clients.list_clients') }}" class="mr-3 text-ink/60 hover:text-ink">
+        <a href="{% if next_action == 'schedule' %}{{ url_for('visits.pick_client_for_schedule') }}{% else %}{{ url_for('clients.list_clients') }}{% endif %}" class="mr-3 text-ink/60 hover:text-ink">
             <i data-lucide="x" class="w-6 h-6"></i>
         </a>
         <h1 class="text-xl font-bold text-ink">Add Prospect</h1>
@@ -16,6 +16,8 @@
 
 {% block content %}
 <form method="POST" class="space-y-4">
+    <input type="hidden" name="next_action" value="{{ next_action or '' }}">
+    
     <div class="card">
         <div class="space-y-4">
             <div>
@@ -44,7 +46,7 @@
         
         <div class="mb-4">
             <input type="text" id="address_search" 
-                class="input !bg-brand/20 !border-b-brand font-medium"
+                class="input bg-brand/10 border-b-brand font-medium"
                 placeholder="🔍 Search address...">
             <p class="text-xs text-neutral-400 mt-1.5">Or enter manually below</p>
         </div>
@@ -94,8 +96,10 @@
     </div>
     
     <div class="space-y-3 pt-2">
-        <button type="submit" class="btn-primary w-full">Save Prospect</button>
-        <a href="{{ url_for('clients.list_clients') }}" class="btn-secondary w-full">Cancel</a>
+        <button type="submit" class="btn-primary w-full">
+            {% if next_action == 'schedule' %}Save & Schedule Visit{% else %}Save Prospect{% endif %}
+        </button>
+        <a href="{% if next_action == 'schedule' %}{{ url_for('visits.pick_client_for_schedule') }}{% else %}{{ url_for('clients.list_clients') }}{% endif %}" class="btn-secondary w-full">Cancel</a>
     </div>
 </form>
 {% endblock %}
@@ -142,8 +146,8 @@ function initAutocomplete() {
 }
 </script>
 <style>
-.pac-container { border-radius: 8px; border-left: 4px solid #FFC107; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin-top: 6px; }
-.pac-item { padding: 12px 16px; cursor: pointer; border-top: 1px solid #F0F0F0; }
+.pac-container { border-radius: 12px; border: 1px solid #E5E5E5; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-top: 6px; }
+.pac-item { padding: 12px 16px; cursor: pointer; border-top: 1px solid #F5F5F5; }
 .pac-item:first-child { border-top: none; }
 .pac-item:hover { background-color: #FFC107; }
 .pac-item-query { font-size: 14px; }
