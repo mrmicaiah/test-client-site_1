@@ -3,83 +3,89 @@
 
 {% block header %}
 <div class="flex items-center">
-    <a href="{{ url_for('main.today') }}" class="mr-4 text-gray-900">←</a>
+    <a href="{{ url_for('main.today') }}" class="mr-3 text-ink/60 hover:text-ink">
+        <i data-lucide="arrow-left" class="w-6 h-6"></i>
+    </a>
     <div>
-        <h1 class="text-2xl font-extrabold text-gray-900">Visit</h1>
-        <p class="text-sm text-gray-700">{{ visit.scheduled_date }}</p>
+        <h1 class="text-xl font-bold text-ink">Visit</h1>
+        <p class="text-sm text-ink/60">{{ visit.scheduled_date }}</p>
     </div>
 </div>
 {% endblock %}
 
 {% block content %}
 <!-- Client Card -->
-<div class="card mb-4">
-    <h3 class="text-lg font-bold text-gray-900 mb-2">{{ visit.clients.name }}</h3>
-    <span class="badge badge-client">Client</span>
+<div class="card card-brand mb-4">
+    <h3 class="text-lg font-semibold text-ink mb-1">{{ visit.clients.name }}</h3>
     
-    <div class="mt-4 space-y-2">
+    <div class="mt-3 space-y-2">
         <a href="tel:{{ visit.clients.phone }}" class="flex items-center py-2">
-            <span class="mr-3">📞</span>
-            <span class="flex-1 text-gray-900">{{ visit.clients.phone }}</span>
-            <span class="text-gray-400">→</span>
+            <i data-lucide="phone" class="w-5 h-5 text-neutral-400 mr-3"></i>
+            <span class="flex-1 text-ink">{{ visit.clients.phone }}</span>
+            <i data-lucide="chevron-right" class="w-5 h-5 text-neutral-300"></i>
         </a>
         <a href="https://maps.google.com/?q={{ visit.clients.address|urlencode }}" target="_blank" class="flex items-center py-2">
-            <span class="mr-3">📍</span>
-            <span class="flex-1 text-gray-900">{{ visit.clients.address }}</span>
-            <span class="text-gray-400">→</span>
+            <i data-lucide="map-pin" class="w-5 h-5 text-neutral-400 mr-3"></i>
+            <span class="flex-1 text-ink">{{ visit.clients.address }}</span>
+            <i data-lucide="chevron-right" class="w-5 h-5 text-neutral-300"></i>
         </a>
     </div>
 </div>
 
 <!-- Visit Info -->
 <div class="card mb-4">
-    {% if visit.scheduled_time %}
-    <p class="text-lg font-semibold text-gray-900">🕐 {{ visit.scheduled_time|time12 }}</p>
-    {% endif %}
-    
-    {% if visit.estimates %}
-    <p class="text-gray-600">{{ visit.estimates.frequency|capitalize }} cleaning - ${{ "%.2f"|format(visit.estimates.price_per_visit) }}</p>
-    {% endif %}
-    
-    <div class="mt-2">
+    <div class="flex justify-between items-start">
+        <div>
+            {% if visit.scheduled_time %}
+            <div class="flex items-center gap-2 mb-2">
+                <i data-lucide="clock" class="w-5 h-5 text-neutral-400"></i>
+                <span class="text-lg font-semibold text-ink">{{ visit.scheduled_time|time12 }}</span>
+            </div>
+            {% endif %}
+            
+            {% if visit.price %}
+            <p class="text-neutral-600">${{ "%.2f"|format(visit.price) }}</p>
+            {% elif visit.estimates %}
+            <p class="text-neutral-600">${{ "%.2f"|format(visit.estimates.price_per_visit) }}</p>
+            {% endif %}
+        </div>
         <span class="badge badge-{{ visit.status }}">{{ visit.status|capitalize }}</span>
     </div>
 </div>
 
 <!-- Client Notes -->
 {% if visit.clients.notes %}
-<p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">NOTES</p>
+<p class="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">Client Notes</p>
 <div class="card mb-4">
-    <p class="text-gray-700 whitespace-pre-wrap">{{ visit.clients.notes }}</p>
+    <p class="text-neutral-700 whitespace-pre-wrap">{{ visit.clients.notes }}</p>
 </div>
 {% endif %}
 
 <!-- Completion Notes (if completed) -->
 {% if visit.completion_notes %}
-<p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">COMPLETION NOTES</p>
+<p class="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">Completion Notes</p>
 <div class="card mb-4">
-    <p class="text-gray-700 whitespace-pre-wrap">{{ visit.completion_notes }}</p>
-    <p class="text-sm text-gray-500 mt-2">Completed {{ visit.completed_at[:10] if visit.completed_at else '' }}</p>
+    <p class="text-neutral-700 whitespace-pre-wrap">{{ visit.completion_notes }}</p>
+    <p class="text-sm text-neutral-400 mt-2">Completed {{ visit.completed_at[:10] if visit.completed_at else '' }}</p>
 </div>
 {% endif %}
 
 <!-- Actions -->
 {% if visit.status == 'scheduled' %}
-<div class="space-y-2">
+<div class="space-y-3">
     <form method="POST" action="{{ url_for('visits.complete_visit', visit_id=visit.id) }}">
         <input type="hidden" name="next" value="{{ url_for('visits.view_visit', visit_id=visit.id) }}">
-        <button type="submit" class="w-full bg-yellow-primary text-gray-900 font-bold py-4 rounded-xl">
+        <button type="submit" class="btn-brand w-full">
             ✓ Mark Complete
         </button>
     </form>
     
     <button onclick="document.getElementById('notes-modal').classList.remove('hidden')" 
-        class="w-full border-2 border-gray-900 text-gray-900 font-bold py-4 rounded-xl">
+        class="btn-primary w-full">
         ✓ Complete with Notes
     </button>
     
-    <a href="{{ url_for('visits.reschedule_visit', visit_id=visit.id) }}" 
-       class="block w-full text-center border-2 border-gray-300 text-gray-700 font-bold py-4 rounded-xl">
+    <a href="{{ url_for('visits.reschedule_visit', visit_id=visit.id) }}" class="btn-secondary w-full">
         Reschedule
     </a>
     
@@ -93,24 +99,41 @@
 </div>
 
 <!-- Notes Modal -->
-<div id="notes-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-50">
+<div id="notes-modal" class="hidden fixed inset-0 bg-black/50 flex items-end justify-center z-50">
     <div class="bg-white w-full rounded-t-2xl p-6 max-h-[80vh]">
-        <h3 class="text-lg font-bold text-gray-900 mb-4">Completion Notes</h3>
+        <h3 class="text-lg font-bold text-ink mb-4">Completion Notes</h3>
         <form method="POST" action="{{ url_for('visits.complete_visit', visit_id=visit.id) }}">
             <input type="hidden" name="next" value="{{ url_for('visits.view_visit', visit_id=visit.id) }}">
-            <textarea name="notes" rows="4" 
-                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-primary focus:outline-none mb-4"
+            <textarea name="notes" rows="4" class="input mb-4"
                 placeholder="Add any notes about this visit..."></textarea>
-            <p class="text-sm text-gray-500 mb-4">These notes will appear on the invoice.</p>
-            <button type="submit" class="w-full bg-yellow-primary text-gray-900 font-bold py-4 rounded-xl">
+            <p class="text-sm text-neutral-500 mb-4">These notes will appear on the invoice.</p>
+            <button type="submit" class="btn-brand w-full">
                 Complete Visit
             </button>
         </form>
         <button onclick="document.getElementById('notes-modal').classList.add('hidden')" 
-            class="w-full text-gray-600 font-semibold py-3 mt-2">
+            class="w-full text-neutral-600 font-semibold py-3 mt-2">
             Cancel
         </button>
     </div>
+</div>
+
+{% elif visit.status == 'completed' %}
+<!-- Completed visit actions -->
+<div class="space-y-3">
+    {% if not visit.invoice_id %}
+    <a href="{{ url_for('invoices.create_invoice', client_id=visit.client_id, from_visit=visit.id) }}" class="btn-brand w-full">
+        💰 Invoice Now
+    </a>
+    {% else %}
+    <p class="text-center text-neutral-500 text-sm py-2">
+        ✓ Already invoiced
+    </p>
+    {% endif %}
+    
+    <a href="{{ url_for('clients.view_client', client_id=visit.client_id) }}" class="btn-secondary w-full">
+        View Client
+    </a>
 </div>
 {% endif %}
 {% endblock %}
