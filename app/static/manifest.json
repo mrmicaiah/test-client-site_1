@@ -1,0 +1,21 @@
+{
+  "name": "MiKlean",
+  "short_name": "MiKlean",
+  "description": "Simple tools for cleaning pros",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFC107",
+  "theme_color": "#FFC107",
+  "icons": [
+    {
+      "src": "/static/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
