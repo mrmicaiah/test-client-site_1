@@ -46,13 +46,21 @@
         html, body {
             font-family: 'Nunito', system-ui, sans-serif;
         }
+        .sparkle {
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body class="bg-yellow-primary min-h-screen flex flex-col">
     <!-- Logo/Branding -->
     <div class="flex-1 flex flex-col items-center justify-center px-6 py-12">
         <div class="text-center mb-8">
-            <h1 class="text-5xl font-extrabold text-gray-900 mb-2">✨ MiKlean</h1>
+            <div class="flex items-center justify-center gap-3 mb-2">
+                <span class="sparkle text-3xl">✦</span>
+                <h1 class="text-5xl font-extrabold text-gray-900">MiKlean</h1>
+                <span class="sparkle text-3xl">✦</span>
+            </div>
             <p class="text-gray-700 font-semibold">Simple tools for cleaning pros</p>
         </div>
         
