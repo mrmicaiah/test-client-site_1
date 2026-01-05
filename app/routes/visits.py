@@ -3,6 +3,7 @@ Visit routes - view, complete, schedule, cancel.
 """
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from datetime import date, datetime, timedelta
+from decimal import Decimal, InvalidOperation
 from ..auth import login_required, get_current_user_id
 from ..supabase_client import get_supabase
 
@@ -70,6 +71,7 @@ def schedule_visits(client_id):
         schedule_type = request.form.get('frequency', 'one_time')  # one_time or recurring
         recurring_frequency = request.form.get('recurring_frequency', 'weekly')
         preferred_time_str = request.form.get('preferred_time', '').strip() or None
+        price_str = request.form.get('price', '').strip()
         
         # Validation
         errors = []
@@ -78,6 +80,19 @@ def schedule_visits(client_id):
         except ValueError:
             errors.append('Invalid start date.')
             start_date = None
+        
+        # Parse price
+        price = None
+        if price_str:
+            try:
+                # Remove $ and commas
+                price_clean = price_str.replace('$', '').replace(',', '').strip()
+                price = float(Decimal(price_clean))
+            except (InvalidOperation, ValueError):
+                errors.append('Invalid price format.')
+        
+        if not price:
+            errors.append('Price is required.')
         
         if errors:
             for error in errors:
@@ -107,7 +122,8 @@ def schedule_visits(client_id):
                 'scheduled_date': start_date.isoformat(),
                 'scheduled_time': scheduled_time.isoformat() if scheduled_time else None,
                 'status': 'scheduled',
-                'is_recurring': False
+                'is_recurring': False,
+                'price': price
             })
         else:
             # Recurring visits - 8 weeks worth
@@ -123,7 +139,8 @@ def schedule_visits(client_id):
                     'scheduled_time': scheduled_time.isoformat() if scheduled_time else None,
                     'status': 'scheduled',
                     'is_recurring': True,
-                    'recurring_frequency': recurring_frequency
+                    'recurring_frequency': recurring_frequency,
+                    'price': price
                 })
                 current_date = current_date + timedelta(days=interval)
         
@@ -204,7 +221,8 @@ def complete_visit(visit_id):
                 user_id, 
                 visit['client_id'], 
                 visit.get('estimate_id'),
-                visit['recurring_frequency']
+                visit['recurring_frequency'],
+                visit.get('price')  # Pass the price for new visits
             )
         
         flash('Visit marked as complete.', 'success')
@@ -303,13 +321,13 @@ def get_interval_days(frequency):
         return 0
 
 
-def maintain_rolling_window(supabase, user_id, client_id, estimate_id, frequency):
+def maintain_rolling_window(supabase, user_id, client_id, estimate_id, frequency, price=None):
     """Ensure there are always 8 weeks of future visits scheduled for recurring clients."""
     today = date.today()
     
     # Count future scheduled recurring visits for this client
     response = supabase.table('visits')\
-        .select('scheduled_date')\
+        .select('scheduled_date, price')\
         .eq('client_id', client_id)\
         .eq('user_id', user_id)\
         .eq('status', 'scheduled')\
@@ -323,9 +341,11 @@ def maintain_rolling_window(supabase, user_id, client_id, estimate_id, frequency
     if len(future_visits) >= 8:
         return  # Already have enough
     
-    # Find the last scheduled date
+    # Find the last scheduled date and get price from existing visits if not provided
     if future_visits:
         last_date = datetime.strptime(future_visits[0]['scheduled_date'], '%Y-%m-%d').date()
+        if price is None and future_visits[0].get('price'):
+            price = future_visits[0]['price']
     else:
         last_date = today
     
@@ -342,7 +362,8 @@ def maintain_rolling_window(supabase, user_id, client_id, estimate_id, frequency
             'scheduled_date': current_date.isoformat(),
             'status': 'scheduled',
             'is_recurring': True,
-            'recurring_frequency': frequency
+            'recurring_frequency': frequency,
+            'price': price
         })
         current_date = current_date + timedelta(days=interval)
     
