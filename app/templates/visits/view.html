@@ -34,7 +34,7 @@
 <!-- Visit Info -->
 <div class="card mb-4">
     {% if visit.scheduled_time %}
-    <p class="text-lg font-semibold text-gray-900">🕐 {{ visit.scheduled_time[:5] }}</p>
+    <p class="text-lg font-semibold text-gray-900">🕐 {{ visit.scheduled_time|time12 }}</p>
     {% endif %}
     
     {% if visit.estimates %}
