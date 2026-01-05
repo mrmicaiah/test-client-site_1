@@ -3,23 +3,27 @@
 
 {% block header_title %}Calendar{% endblock %}
 {% block header_subtitle %}
-<p class="text-sm font-semibold text-gray-700 mt-1">{{ selected_date.strftime('%B %Y') }}</p>
+<p class="text-sm text-ink/60 font-medium mt-0.5">{{ selected_date.strftime('%B %Y') }}</p>
 {% endblock %}
 
 {% block content %}
 <!-- Month Navigation -->
 <div class="flex justify-between items-center mb-4">
     <a href="{{ url_for('main.calendar', date_str=prev_month.strftime('%Y-%m-%d')) }}" 
-       class="px-4 py-2 text-gray-600 font-semibold">← Prev</a>
-    <span class="font-bold text-gray-900">{{ selected_date.strftime('%B %Y') }}</span>
+       class="w-10 h-10 flex items-center justify-center rounded-lg bg-white border-b-3 border-neutral-200">
+        <i data-lucide="chevron-left" class="w-5 h-5 text-ink"></i>
+    </a>
+    <span class="font-bold text-ink text-lg">{{ selected_date.strftime('%B %Y') }}</span>
     <a href="{{ url_for('main.calendar', date_str=next_month.strftime('%Y-%m-%d')) }}" 
-       class="px-4 py-2 text-gray-600 font-semibold">Next →</a>
+       class="w-10 h-10 flex items-center justify-center rounded-lg bg-white border-b-3 border-neutral-200">
+        <i data-lucide="chevron-right" class="w-5 h-5 text-ink"></i>
+    </a>
 </div>
 
 <!-- Calendar Grid -->
 <div class="card mb-4">
     <!-- Day Headers -->
-    <div class="grid grid-cols-7 text-center text-xs font-bold text-gray-500 mb-2">
+    <div class="grid grid-cols-7 text-center text-xs font-bold text-neutral-400 mb-3">
         <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
     </div>
     
@@ -27,7 +31,7 @@
     <div class="grid grid-cols-7 gap-1">
         {# Empty cells before first day #}
         {% for i in range(first_weekday) %}
-        <div class="h-10"></div>
+        <div class="h-12"></div>
         {% endfor %}
         
         {# Days of month #}
@@ -35,15 +39,20 @@
             {% set current_date = first_of_month.replace(day=day) %}
             {% set date_str = current_date.strftime('%Y-%m-%d') %}
             {% set has_visits = date_str in visits_by_date %}
+            {% set visit_count = visits_by_date[date_str]|length if has_visits else 0 %}
             {% set is_selected = current_date == selected_date %}
             {% set is_today = current_date == today %}
             
             <a href="{{ url_for('main.calendar', date_str=date_str) }}" 
-               class="h-10 flex flex-col items-center justify-center rounded-lg 
-                      {% if is_selected %}bg-yellow-primary{% elif is_today %}bg-yellow-light{% else %}hover:bg-gray-100{% endif %}">
-                <span class="text-sm {% if is_selected %}font-bold{% endif %}">{{ day }}</span>
+               class="h-12 flex flex-col items-center justify-center rounded-lg relative
+                      {% if is_selected %}bg-ink text-white{% elif is_today %}bg-brand/20{% else %}hover:bg-neutral-100{% endif %}">
+                <span class="text-sm font-medium {% if is_selected %}font-bold{% endif %}">{{ day }}</span>
                 {% if has_visits %}
-                <span class="w-1.5 h-1.5 rounded-full {% if is_selected %}bg-gray-900{% else %}bg-yellow-dark{% endif %}"></span>
+                <div class="flex gap-0.5 mt-0.5">
+                    {% for i in range([visit_count, 3]|min) %}
+                    <span class="w-1.5 h-1.5 rounded-full {% if is_selected %}bg-brand{% else %}bg-ink{% endif %}"></span>
+                    {% endfor %}
+                </div>
                 {% endif %}
             </a>
         {% endfor %}
@@ -51,27 +60,30 @@
 </div>
 
 <!-- Selected Day's Visits -->
-<p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">
+<p class="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">
     {{ selected_date.strftime('%A, %B %d') }}
 </p>
 
 {% if selected_visits %}
 <div class="space-y-3">
     {% for visit in selected_visits %}
-    <a href="{{ url_for('visits.view_visit', visit_id=visit.id) }}" class="card block">
+    <a href="{{ url_for('visits.view_visit', visit_id=visit.id) }}" class="card card-brand card-interactive block">
         <div class="flex justify-between items-start">
-            <h3 class="font-bold text-gray-900">{{ visit.clients.name }}</h3>
+            <h3 class="font-semibold text-ink">{{ visit.clients.name }}</h3>
             <span class="badge badge-{{ visit.status }}">{{ visit.status|capitalize }}</span>
         </div>
         {% if visit.scheduled_time %}
-        <p class="text-sm text-gray-600">🕐 {{ visit.scheduled_time|time12 }}</p>
+        <div class="flex items-center gap-1.5 mt-2 text-sm text-neutral-500">
+            <i data-lucide="clock" class="w-4 h-4"></i>
+            <span>{{ visit.scheduled_time|time12 }}</span>
+        </div>
         {% endif %}
     </a>
     {% endfor %}
 </div>
 {% else %}
-<div class="text-center py-8 text-gray-500">
-    No visits scheduled
+<div class="card text-center py-8">
+    <p class="text-neutral-500">No visits scheduled</p>
 </div>
 {% endif %}
 {% endblock %}
