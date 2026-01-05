@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block header_actions %}
-<a href="{{ url_for('clients.new_client') }}" class="flex items-center gap-2 bg-ink text-white font-semibold px-4 py-2 rounded-full text-sm">
+<a href="{{ url_for('clients.new_client') }}" class="flex items-center gap-2 bg-ink text-white font-semibold px-4 py-2 rounded-lg text-sm">
     <i data-lucide="plus" class="w-4 h-4 stroke-[2.5]"></i>
     <span>Add</span>
 </a>
@@ -22,7 +22,7 @@
 
 <div class="space-y-3">
     {% for visit in visits %}
-    <a href="{{ url_for('visits.view_visit', visit_id=visit.id) }}" class="card card-interactive block">
+    <a href="{{ url_for('visits.view_visit', visit_id=visit.id) }}" class="card card-brand card-interactive block">
         <div class="flex justify-between items-start mb-2">
             <h3 class="text-lg font-semibold text-ink">{{ visit.clients.name }}</h3>
             <span class="badge badge-{{ visit.status }}">{{ visit.status|capitalize }}</span>
