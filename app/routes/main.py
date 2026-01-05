@@ -11,15 +11,15 @@ bp = Blueprint('main', __name__)
 
 @bp.route('/')
 def index():
-    """Home page - redirect based on auth status."""
+    """Home page - show landing or redirect to today if logged in."""
     if 'access_token' in session:
         return redirect(url_for('main.today'))
-    return redirect(url_for('auth.login'))
+    return render_template('landing.html')
 
 
 @bp.route('/learn')
 def landing():
-    """Marketing landing page."""
+    """Marketing landing page (also accessible directly)."""
     return render_template('landing.html')
 
 
