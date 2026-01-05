@@ -1,51 +1,71 @@
 {% extends "base.html" %}
-{% block title %}Today - MiKlean{% endblock %}
+{% block title %}Home - MiKlean{% endblock %}
 
-{% block header_title %}Today{% endblock %}
+{% block header_title %}
+<span class="text-brand">✦</span> Today
+{% endblock %}
+
 {% block header_subtitle %}
-<p class="text-sm font-semibold text-gray-700 mt-1">{{ today.strftime('%A, %B %d') }}</p>
+<p class="text-sm text-white/60 font-medium mt-0.5">{{ today.strftime('%A, %B %d') }}</p>
 {% endblock %}
 
 {% block header_actions %}
-<a href="{{ url_for('clients.new_client') }}" class="bg-white text-gray-900 font-bold px-4 py-2 rounded-full text-sm">
-    + Add
+<a href="{{ url_for('clients.new_client') }}" class="flex items-center gap-2 bg-brand text-ink font-semibold px-4 py-2 rounded-full text-sm hover:bg-brand-dark transition">
+    <i data-lucide="plus" class="w-4 h-4"></i>
+    <span>Add</span>
 </a>
 {% endblock %}
 
 {% block content %}
 {% if visits %}
-<p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">{{ visits|length }} VISIT{{ 's' if visits|length != 1 else '' }} TODAY</p>
-
-<div class="space-y-3">
-    {% for visit in visits %}
-    <a href="{{ url_for('visits.view_visit', visit_id=visit.id) }}" class="card block">
-        <div class="flex justify-between items-start">
-            <h3 class="text-lg font-bold text-gray-900">{{ visit.clients.name }}</h3>
-            <span class="badge badge-{{ visit.status }}">{{ visit.status|capitalize }}</span>
-        </div>
-        {% if visit.scheduled_time %}
-        <p class="text-sm text-gray-600 mt-1">🕐 {{ visit.scheduled_time|time12 }}</p>
-        {% endif %}
-        <p class="text-sm text-gray-600 mt-1">📍 {{ visit.clients.address|truncate(40) }}</p>
-    </a>
-    {% endfor %}
+<!-- Today's Schedule -->
+<div class="mb-6">
+    <p class="text-xs font-semibold text-ink-tertiary uppercase tracking-wider mb-4">
+        {{ visits|length }} Visit{{ 's' if visits|length != 1 else '' }} Today
+    </p>
+    
+    <div class="space-y-3">
+        {% for visit in visits %}
+        <a href="{{ url_for('visits.view_visit', visit_id=visit.id) }}" class="card card-interactive block">
+            <div class="flex justify-between items-start mb-3">
+                <h3 class="text-lg font-semibold text-ink">{{ visit.clients.name }}</h3>
+                <span class="badge badge-{{ visit.status }}">{{ visit.status|capitalize }}</span>
+            </div>
+            
+            <div class="flex items-center gap-4 text-sm text-ink-secondary">
+                {% if visit.scheduled_time %}
+                <div class="flex items-center gap-1.5">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    <span>{{ visit.scheduled_time|time12 }}</span>
+                </div>
+                {% endif %}
+                <div class="flex items-center gap-1.5">
+                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                    <span>{{ visit.clients.address|truncate(30) }}</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
 </div>
+
 {% else %}
-<div class="text-center py-12">
-    <p class="text-4xl mb-4">✨</p>
-    <p class="text-gray-600 font-semibold">No visits scheduled for today</p>
-    <p class="text-sm text-gray-500 mt-2">Enjoy your day off!</p>
+<!-- Empty State -->
+<div class="text-center py-16">
+    <div class="w-16 h-16 bg-surface-tertiary rounded-full flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="sparkles" class="w-8 h-8 text-brand"></i>
+    </div>
+    <h3 class="text-lg font-semibold text-ink mb-1">No visits today</h3>
+    <p class="text-ink-secondary">Enjoy your day off!</p>
 </div>
 {% endif %}
 
 <!-- Quick Actions -->
-<div class="mt-6 space-y-3">
-    <a href="{{ url_for('clients.new_client') }}" 
-       class="block w-full text-center bg-yellow-primary text-gray-900 font-bold py-4 rounded-xl">
-        + Add New Client
+<div class="space-y-3 mt-8">
+    <a href="{{ url_for('clients.new_client') }}" class="btn-brand block text-center">
+        Add New Client
     </a>
-    <a href="{{ url_for('clients.list_clients') }}" 
-       class="block w-full text-center py-4 border-2 border-gray-300 rounded-xl text-gray-600 font-semibold hover:border-yellow-primary hover:text-gray-900 transition">
+    <a href="{{ url_for('clients.list_clients') }}" class="btn-secondary block text-center">
         View All Clients
     </a>
 </div>
