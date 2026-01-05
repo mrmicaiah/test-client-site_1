@@ -52,6 +52,12 @@
             min-height: 100vh;
         }
         
+        /* White sparkle on yellow */
+        .sparkle-white {
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
         /* Safe area for notched phones */
         .safe-top {
             padding-top: env(safe-area-inset-top, 20px);
@@ -142,7 +148,7 @@
             {% block header %}
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-extrabold text-gray-900">✨ {% block header_title %}MiKlean{% endblock %}</h1>
+                    <h1 class="text-2xl font-extrabold text-gray-900"><span class="sparkle-white">✦</span> {% block header_title %}MiKlean{% endblock %}</h1>
                     {% block header_subtitle %}{% endblock %}
                 </div>
                 {% block header_actions %}{% endblock %}
@@ -165,29 +171,25 @@
     {% endwith %}
     
     <!-- Main Content -->
-    <main class="{% block main_class %}px-4 py-4 pb-24{% endblock %}">
+    <main class="{% block main_class %}px-4 py-4 pb-20{% endblock %}">
         {% block content %}{% endblock %}
     </main>
     
     <!-- Bottom Navigation -->
     {% block bottom_nav %}
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-bottom">
-        <div class="flex justify-around py-2">
-            <a href="{{ url_for('main.today') }}" class="flex flex-col items-center py-2 px-4 {% if request.endpoint == 'main.today' %}text-yellow-dark{% else %}text-gray-400{% endif %}">
-                <span class="text-xl">🏠</span>
-                <span class="text-xs font-semibold">Today</span>
+        <div class="flex justify-around py-3">
+            <a href="{{ url_for('main.today') }}" class="flex items-center justify-center w-12 h-12 rounded-full {% if request.endpoint == 'main.today' %}bg-yellow-light{% endif %}">
+                <span class="text-2xl">🏠</span>
             </a>
-            <a href="{{ url_for('clients.list_clients') }}" class="flex flex-col items-center py-2 px-4 {% if request.endpoint and 'clients' in request.endpoint %}text-yellow-dark{% else %}text-gray-400{% endif %}">
-                <span class="text-xl">👥</span>
-                <span class="text-xs font-semibold">Clients</span>
+            <a href="{{ url_for('clients.list_clients') }}" class="flex items-center justify-center w-12 h-12 rounded-full {% if request.endpoint and 'clients' in request.endpoint %}bg-yellow-light{% endif %}">
+                <span class="text-2xl">👥</span>
             </a>
-            <a href="{{ url_for('main.calendar') }}" class="flex flex-col items-center py-2 px-4 {% if request.endpoint == 'main.calendar' %}text-yellow-dark{% else %}text-gray-400{% endif %}">
-                <span class="text-xl">📅</span>
-                <span class="text-xs font-semibold">Calendar</span>
+            <a href="{{ url_for('main.calendar') }}" class="flex items-center justify-center w-12 h-12 rounded-full {% if request.endpoint == 'main.calendar' %}bg-yellow-light{% endif %}">
+                <span class="text-2xl">📅</span>
             </a>
-            <a href="{{ url_for('settings.index') }}" class="flex flex-col items-center py-2 px-4 {% if request.endpoint and 'settings' in request.endpoint %}text-yellow-dark{% else %}text-gray-400{% endif %}">
-                <span class="text-xl">⚙️</span>
-                <span class="text-xs font-semibold">Settings</span>
+            <a href="{{ url_for('settings.index') }}" class="flex items-center justify-center w-12 h-12 rounded-full {% if request.endpoint and 'settings' in request.endpoint %}bg-yellow-light{% endif %}">
+                <span class="text-2xl">⚙️</span>
             </a>
         </div>
     </nav>
