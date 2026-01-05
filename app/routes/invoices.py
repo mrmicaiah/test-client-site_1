@@ -198,48 +198,55 @@ def download_invoice_pdf(invoice_id):
     user_id = get_current_user_id()
     supabase = get_supabase()
     
-    # Get invoice with client info
-    response = supabase.table('invoices')\
-        .select('*, clients(name, address, email)')\
-        .eq('id', invoice_id)\
-        .eq('user_id', user_id)\
-        .single()\
-        .execute()
-    
-    if not response.data:
-        flash('Invoice not found.', 'error')
-        return redirect(url_for('clients.list_clients'))
-    
-    invoice = response.data
-    profile = get_user_profile()
-    
-    # Get visits on this invoice
-    visits_response = supabase.table('visits')\
-        .select('*, estimates(price_per_visit, description)')\
-        .eq('invoice_id', invoice_id)\
-        .order('scheduled_date')\
-        .execute()
-    
-    visits = visits_response.data if visits_response.data else []
-    
-    for visit in visits:
-        if visit.get('estimates') and visit['estimates'].get('price_per_visit'):
-            visit['price'] = float(visit['estimates']['price_per_visit'])
-        else:
-            visit['price'] = 0
-    
-    # Generate PDF
-    from ..services.pdf import generate_invoice_pdf
-    pdf_file = generate_invoice_pdf(invoice, visits, profile)
-    
-    filename = f"{invoice['invoice_number']}_{invoice['clients']['name'].replace(' ', '_')}.pdf"
-    
-    return send_file(
-        pdf_file,
-        mimetype='application/pdf',
-        as_attachment=True,
-        download_name=filename
-    )
+    try:
+        # Get invoice with client info
+        response = supabase.table('invoices')\
+            .select('*, clients(name, address, email)')\
+            .eq('id', invoice_id)\
+            .eq('user_id', user_id)\
+            .single()\
+            .execute()
+        
+        if not response.data:
+            flash('Invoice not found.', 'error')
+            return redirect(url_for('clients.list_clients'))
+        
+        invoice = response.data
+        profile = get_user_profile()
+        
+        # Get visits on this invoice
+        visits_response = supabase.table('visits')\
+            .select('*, estimates(price_per_visit, description)')\
+            .eq('invoice_id', invoice_id)\
+            .order('scheduled_date')\
+            .execute()
+        
+        visits = visits_response.data if visits_response.data else []
+        
+        for visit in visits:
+            if visit.get('estimates') and visit['estimates'].get('price_per_visit'):
+                visit['price'] = float(visit['estimates']['price_per_visit'])
+            else:
+                visit['price'] = 0
+        
+        # Generate PDF
+        from ..services.pdf import generate_invoice_pdf
+        pdf_file = generate_invoice_pdf(invoice, visits, profile)
+        
+        # Sanitize filename - remove special characters
+        client_name = invoice.get('clients', {}).get('name', 'Client')
+        safe_name = ''.join(c if c.isalnum() or c in ' -_' else '' for c in client_name).replace(' ', '_')
+        filename = f"{invoice['invoice_number']}_{safe_name}.pdf"
+        
+        return send_file(
+            pdf_file,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=filename
+        )
+    except Exception as e:
+        flash(f'Error generating PDF: {str(e)}', 'error')
+        return redirect(url_for('invoices.view_invoice', invoice_id=invoice_id))
 
 
 @bp.route('/invoices/<invoice_id>/send', methods=['GET', 'POST'])
