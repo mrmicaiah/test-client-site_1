@@ -22,11 +22,16 @@
 
 {% block content %}
 <!-- Search -->
-<form method="GET" class="mb-4">
+<form method="GET" class="mb-2">
     <input type="text" name="search" value="{{ search or '' }}"
         placeholder="🔍 Search clients..."
         class="input">
 </form>
+
+<!-- Add new client link -->
+<p class="text-sm text-neutral-500 mb-4">
+    New client? <a href="{{ url_for('clients.new_client', next='schedule') }}" class="text-brand font-semibold">Add them first →</a>
+</p>
 
 {% if clients %}
 <p class="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">
