@@ -3,48 +3,70 @@
 
 {% block header %}
 <div class="flex items-center">
-    <a href="{{ url_for('invoices.view_invoice', invoice_id=invoice.id) }}" class="mr-4 text-gray-900">←</a>
-    <h1 class="text-2xl font-extrabold text-gray-900">Send Invoice</h1>
+    <a href="{{ url_for('invoices.view_invoice', invoice_id=invoice.id) }}" class="mr-3 text-ink/60 hover:text-ink">
+        <i data-lucide="arrow-left" class="w-6 h-6"></i>
+    </a>
+    <h1 class="text-xl font-bold text-ink">Send Invoice</h1>
 </div>
 {% endblock %}
 
 {% block bottom_nav %}{% endblock %}
 
 {% block content %}
-<div class="card mb-4">
-    <p class="font-semibold text-gray-900">{{ invoice.invoice_number }}</p>
-    <p class="text-gray-600">{{ client.name }} - ${{ "%.2f"|format(invoice.total) }}</p>
+<div class="card card-brand mb-4">
+    <div class="flex justify-between items-center">
+        <div>
+            <p class="font-semibold text-ink">{{ invoice.invoice_number }}</p>
+            <p class="text-neutral-600">{{ client.name }}</p>
+        </div>
+        <p class="text-2xl font-bold text-ink">${{ "%.2f"|format(invoice.total) }}</p>
+    </div>
 </div>
 
-<p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">SEND VIA</p>
+<p class="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">Send Via</p>
 
 <form method="POST" class="space-y-3">
-    <button type="submit" name="method" value="email" 
-        class="w-full card text-left {% if client.email %}{% else %}opacity-50{% endif %}"
-        {% if not client.email %}disabled{% endif %}>
+    <!-- Text Message - Primary Option -->
+    <button type="submit" name="method" value="text" class="w-full card card-interactive text-left">
         <div class="flex items-center">
-            <span class="text-2xl mr-4">✉️</span>
-            <div>
-                <p class="font-semibold text-gray-900">Email</p>
-                <p class="text-sm text-gray-600">{{ client.email or 'No email address' }}</p>
+            <div class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center mr-4">
+                <i data-lucide="message-circle" class="w-6 h-6 text-brand"></i>
             </div>
+            <div class="flex-1">
+                <p class="font-semibold text-ink">Text Message</p>
+                <p class="text-sm text-neutral-500">{{ client.phone }}</p>
+            </div>
+            <i data-lucide="chevron-right" class="w-5 h-5 text-neutral-300"></i>
         </div>
     </button>
     
-    <button type="submit" name="method" value="text" class="w-full card text-left">
+    <!-- Email Option -->
+    <button type="submit" name="method" value="email" 
+        class="w-full card card-interactive text-left {% if not client.email %}opacity-50{% endif %}"
+        {% if not client.email %}disabled{% endif %}>
         <div class="flex items-center">
-            <span class="text-2xl mr-4">💬</span>
-            <div>
-                <p class="font-semibold text-gray-900">Text Message</p>
-                <p class="text-sm text-gray-600">{{ client.phone }}</p>
+            <div class="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center mr-4">
+                <i data-lucide="mail" class="w-6 h-6 text-neutral-500"></i>
             </div>
+            <div class="flex-1">
+                <p class="font-semibold text-ink">Email</p>
+                <p class="text-sm text-neutral-500">{{ client.email or 'No email address' }}</p>
+            </div>
+            <i data-lucide="chevron-right" class="w-5 h-5 text-neutral-300"></i>
         </div>
     </button>
 </form>
 
 {% if not client.email %}
-<p class="text-sm text-gray-500 mt-4">
-    <a href="{{ url_for('clients.edit_client', client_id=client.id) }}" class="text-blue-600">Add email address</a> to send via email.
+<p class="text-sm text-neutral-500 mt-4 text-center">
+    <a href="{{ url_for('clients.edit_client', client_id=invoice.client_id) }}" class="text-brand font-semibold">Add email address</a> to enable email.
 </p>
 {% endif %}
+
+<!-- Public Link Info -->
+<div class="mt-6 p-4 bg-neutral-100 rounded-lg">
+    <p class="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">Invoice Link</p>
+    <p class="text-sm text-neutral-600 mb-2">Client will receive this link to view their invoice:</p>
+    <p class="text-xs text-neutral-500 break-all font-mono bg-white p-2 rounded">{{ public_url }}</p>
+</div>
 {% endblock %}
